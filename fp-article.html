@@ -9,7 +9,7 @@
       <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
   </head>
   <body>
-<div>Start</div>    
+<div id ="div-main">Start</div>    
 init-resp
 <pre id="div-init-resp">init-resp</pre>    
 task-obj-resp
@@ -48,6 +48,7 @@ task-obj-resp
 
         $(document).ready(function(){
             
+            macrosId = "AKfycbxzj75IIx3KXgccp1vstz9r3UM-1uEI1GnqNmz-QblZ4DpLMB0"
             
             var initObjStr =""
             //web google mode
@@ -76,14 +77,26 @@ task-obj-resp
 
         function getTaskObjCallback(apiResp){
             console.log(apiResp)
-            $("#div-task-obj-resp").text(JSON.stringify(apiResp,null,3))    
+            $("#div-task-obj-resp").text(JSON.stringify(apiResp,null,3))
+            if(apiResp.status=="OK"){
+                var anchorTypeUrl = getURLforAnchorTypeObjFromPropLink(apiResp)
+                callApi(anchorTypeUrl,getAnchorTypeCallback)
+            }else{
+                $("#div-main").text("ERROR. GAME OVER")
+            }
+            
         }
 
+         function getAnchorTypeCallback(apiResp){
+                         console.log('getAnchorTypeCallback',apiResp)
+            $("#div-anchor-type-resp").text(JSON.stringify(apiResp,null,3))
 
+         }
+        
         
         function getTaskObjUrlFromInitObj(initObj){
             var endpoint = "get-task-obj"
-            var macrosId = "AKfycbxzj75IIx3KXgccp1vstz9r3UM-1uEI1GnqNmz-QblZ4DpLMB0"
+
             var url= "https://script.google.com/macros/s/"
                               +macrosId
                               +"/exec/"
@@ -97,6 +110,25 @@ task-obj-resp
             return url
 
         }
+        
+        function getURLforAnchorTypeObjFromPropLink(taskObj){
+            var endpoint = "get-anchor-type"
+
+            var url= "https://script.google.com/macros/s/"
+                              +macrosId
+                              +"/exec/"
+                              +endpoint
+                              +"?origin-file-id="//+initObj.parameter["origin-file-id"]
+                              +"&column-map-name="//+initObj.parameter["column-map-name"]
+                              +"&sheet-name="//+initObj.parameter["sheet-name"]
+                              +"&accept-edit-mode="//+initObj.parameter["accept-edit-mode"]
+                              +"&prop-link="+encodeURIComponent(taskObj.propLink)
+                                +"&ph3=&ph4=&ph5="
+            console.log("anchorTypeUrl= ",url)
+            return url
+
+        }
+        
     
         function callApi(url,callback){           
               $.ajax({
