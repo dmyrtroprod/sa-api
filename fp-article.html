@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Business Map</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+      <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
+  </head>
+  <body>
+<div>Start</div>    
+init-resp
+<pre id="div-init-resp">init-resp</pre>    
+task-obj-resp
+<pre id="div-task-obj-resp">task-obj-resp</pre>    
+
+<div id="div-anchor-type-resp">anchor-type-resp</div>
+
+<div id="div-branded-natural-reserve-response-resp">branded natural reserve response</div>
+
+<div id="url-anchor-file-response">url-anchor-file-response</div>
+
+<div id="div-anchor-wording-resp">anchor-wording-resp</div>
+ 
+<div id="div-get-writer-resp">get-writer-resp</div>    
+
+<div id="div-create-file-resp">create-file-resp</div>    
+
+<div id="div-update-writer-resp">create-update-writer-resp</div>   
+
+<div id="div-update-anchor-branded-type-resp">update-anchor-type-resp</div>   
+
+<div id="div-update-branded-resp">update-branded-resp</div>   
+
+<div id="div-update-master-resp">update-master-resp</div>   
+
+<div  > 
+  <input type="button" id="btSubmit" value="--">
+</div>
+       
+    
+    
+    <script>
+
+
+
+
+        $(document).ready(function(){
+            
+            
+            var initObjStr =""
+            //web google mode
+            //initObjStr = <?= data ?>    
+            
+            var url = "https://script.google.com/macros/s/AKfycbxzj75IIx3KXgccp1vstz9r3UM-1uEI1GnqNmz-QblZ4DpLMB0/exec/process-with-n-art-accepted?origin-file-id=1lFMXGhJQtIp6PaLZ7j6NzUInoAc4DyrT7WI_WSccBUM&column-map-name=old-outreach&sheet-name=Master&accept-edit-mode=accept&ph2=&ph3=&ph4=&ph5="
+
+            if (initObjStr.length==0){
+                var initObj =GAPIurlToEobj(url) 
+            }else{
+                initObj = JSON.parse(initObjStr)
+            }
+            
+             
+             console.log(initObj)
+            
+           // $("#btSubmit").on("click",reqestMDB)
+            
+            $("#div-init-resp").text(JSON.stringify(initObj,null,3))
+            var taskObjUlr = getTaskObjUrlFromInitObj(initObj)
+                
+            callApi(taskObjUlr,getTaskObjCallback)          
+        })
+        
+
+
+        function getTaskObjCallback(apiResp){
+            console.log(apiResp)
+            $("#div-task-obj-resp").text(JSON.stringify(apiResp,null,3))    
+        }
+
+
+        
+        function getTaskObjUrlFromInitObj(initObj){
+            var endpoint = "get-task-obj"
+            var macrosId = "AKfycbxzj75IIx3KXgccp1vstz9r3UM-1uEI1GnqNmz-QblZ4DpLMB0"
+            var url= "https://script.google.com/macros/s/"
+                              +macrosId
+                              +"/exec/"
+                              +endpoint
+                              +"?origin-file-id="+initObj.parameter["origin-file-id"]
+                              +"&column-map-name="+initObj.parameter["column-map-name"]
+                              +"&sheet-name="+initObj.parameter["sheet-name"]
+                              +"&accept-edit-mode="+initObj.parameter["accept-edit-mode"]
+                              +"&ph2=&ph3=&ph4=&ph5="
+            console.log("taskObjurl= ",url)
+            return url
+
+        }
+    
+        function callApi(url,callback){           
+              $.ajax({
+                        crossDomain: true,
+                        //context: document.body,
+                        dataType: "jsonp",
+                        url: url,                              
+                        type: 'get'})
+                        .always(function(resp){
+                        if (callback!=undefined){callback(resp)}
+                        })
+        }
+        
+        function GAPIurlToEobj(url){
+  if(url===undefined){url = ""}
+  var params = url.slice(96)
+  var s1 = params.split("?")
+  var qs = s1[0]
+  var paramsArr = s1[1].split("&")
+  
+  var e = {"pathInfo":qs, parameter:{}}
+  paramsArr.forEach(function(par){
+   var arr = par.split("=")
+   e.parameter[arr[0]]=arr[1]  
+  })
+            console.log("e",e)
+  return e
+}
+        
+    </script>
+
+    
+    <style>
+</style>
+  </body>
+</html>
+
