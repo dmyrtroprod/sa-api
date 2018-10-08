@@ -15,13 +15,9 @@ init-resp
 task-obj-resp
 <pre id="div-task-obj-resp"></pre>    
 anchor-type-resp
-<div id="div-anchor-type-resp"></div>
-
-<div id="div-branded-natural-reserve-response-resp">branded natural reserve response</div>
-
-<div id="url-anchor-file-response">url-anchor-file-response</div>
-
-<div id="div-anchor-wording-resp">anchor-wording-resp</div>
+<pre id="div-anchor-type-resp"></pre>
+anchor-text-resp
+<pre id="div-anchor-text-resp"></pre>
  
 <div id="div-get-writer-resp">get-writer-resp</div>    
 
@@ -76,7 +72,7 @@ anchor-type-resp
 
 
         function getTaskObjCallback(apiResp){
-            console.log(apiResp)
+            console.log("getTaskObjCallback",apiResp)
             $("#div-task-obj-resp").text(JSON.stringify(apiResp,null,3))
             if(apiResp.status=="OK"){
                 var anchorTypeUrl = getURLforAnchorTypeObjFromPropLink(apiResp)
@@ -88,10 +84,25 @@ anchor-type-resp
         }
 
          function getAnchorTypeCallback(apiResp){
-                         console.log('getAnchorTypeCallback',apiResp)
+            console.log('getAnchorTypeCallback',apiResp)
             $("#div-anchor-type-resp").text(JSON.stringify(apiResp,null,3))
-
+            if(apiResp.status=="OK"){
+                var anchorTextUrl = getURLforAnchorTextObjFromType(apiResp)
+                callApi(anchorTextUrl,getAnchorTextCallback)
+            }else{
+                $("#div-main").text("ERROR. GAME OVER")
+            }
          }
+        
+        
+        function getAnchorTextCallback(apiResp){
+            console.log('getAnchorTextCallback',apiResp)
+            $("#div-anchor-text-resp").text(JSON.stringify(apiResp,null,3))                    
+        }
+        
+        
+        
+        
         
         
         function getTaskObjUrlFromInitObj(initObj){
@@ -129,6 +140,18 @@ anchor-type-resp
 
         }
         
+        function getURLforAnchorTextObjFromType(apiResp){
+            var endpoint = "get-anchor-text"
+             //https://script.google.com/macros/s/AKfycbxzj75IIx3KXgccp1vstz9r3UM-1uEI1GnqNmz-QblZ4DpLMB0/exec/get-anchor-text?anchor-type=Keyword%20Plus%20Word&anchor-file-id=103usyI_lKILLczDCouwLcUUT21TD7yfFugKCm6wbUeI   
+            var url= "https://script.google.com/macros/s/"
+                              +macrosId
+                              +"/exec/"
+                              +endpoint
+                              +"?anchor-type="+apiResp.typeName
+                              +"&anchor-file-id="+apiResp.anchorsFileId
+            console.log("anchorTextUrl= ",url)
+            return url
+        }
     
         function callApi(url,callback){           
               $.ajax({
