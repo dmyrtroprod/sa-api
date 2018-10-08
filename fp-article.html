@@ -18,8 +18,13 @@ anchor-type-resp
 <pre id="div-anchor-type-resp"></pre>
 anchor-text-resp
 <pre id="div-anchor-text-resp"></pre>
- 
-<div id="div-get-writer-resp">get-writer-resp</div>    
+writer-resp 
+<pre id="div-get-writer-resp"></pre>    
+
+<div> 
+  <input type="button" id="btSubmit" value="--" hidden ="false">
+</div>
+
 
 <div id="div-create-file-resp">create-file-resp</div>    
 
@@ -31,9 +36,6 @@ anchor-text-resp
 
 <div id="div-update-master-resp">update-master-resp</div>   
 
-<div  > 
-  <input type="button" id="btSubmit" value="--">
-</div>
        
     
     
@@ -97,11 +99,36 @@ anchor-text-resp
         
         function getAnchorTextCallback(apiResp){
             console.log('getAnchorTextCallback',apiResp)
-            $("#div-anchor-text-resp").text(JSON.stringify(apiResp,null,3))                    
+            $("#div-anchor-text-resp").text(JSON.stringify(apiResp,null,3))
+            if(apiResp.status=="OK"){
+                var writerUrl = getURLforWriter()
+                callApi(writerUrl,getWriterCallback)
+            }else{
+                $("#div-main").text("ERROR. GAME OVER")
+            }
+            
         }
         
+        function getWriterCallback(apiResp){
+            console.log('getWriterCallback',apiResp)
+            // in writer remove details
+            apiResp[1]=""
+            //apiResp[2]=""
+            apiResp[3]=""
+            $("#div-get-writer-resp").text(JSON.stringify(apiResp,null,3))
+            if(apiResp.status=="OK"){
+                buttonInit()
+            }else{
+                $("#div-main").text("ERROR. GAME OVER")
+            }
+
+        }
         
-        
+        function buttonInit(){
+            $("#btSubmit").show()
+            $("#btSubmit").val("click if you want to process with this settings")            
+            $("#btSubmit").on("click",getCreateFileResp)
+        }
         
         
         
@@ -152,7 +179,21 @@ anchor-text-resp
             console.log("anchorTextUrl= ",url)
             return url
         }
-    
+        
+        
+        function getURLforWriter() {
+            var endpoint = "get-writer"
+
+            var url= "https://script.google.com/macros/s/"
+                              +macrosId
+                              +"/exec/"
+                              +endpoint                            
+            console.log("writerUrl= ",url)
+            return url
+
+        }
+        
+        
         function callApi(url,callback){           
               $.ajax({
                         crossDomain: true,
