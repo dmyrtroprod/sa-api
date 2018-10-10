@@ -16,6 +16,8 @@ task-obj-resp
 <pre id="div-task-obj-resp"></pre>    
 anchor-type-resp
 <pre id="div-anchor-type-resp"></pre>
+texts-file-validate-resp
+<pre id="div-texts-file-validate-resp"></pre>
 anchor-text-resp
 <pre id="div-anchor-text-resp"></pre>
 writer-resp 
@@ -63,8 +65,7 @@ create-file-resp
              
              console.log(initObj)
             
-           // $("#btSubmit").on("click",reqestMDB)
-            
+
             $("#div-init-resp").text(JSON.stringify(initObj,null,3))
             var taskObjUlr = getTaskObjUrlFromInitObj(initObj)
                 
@@ -91,12 +92,35 @@ create-file-resp
             console.log('getAnchorTypeCallback',apiResp)
             $("#div-anchor-type-resp").text(JSON.stringify(apiResp,null,3))
             if(apiResp.status=="OK"){
-                var anchorTextUrl = getURLforAnchorTextObjFromType(apiResp)
+                if (apiResp.anchorsFileId ==""){
+                    $("#div-texts-file-validate-resp").text("OK. This is Branded or Natural type and ones list is supposed to be validated before")
+                    var anchorTextUrl = getURLforAnchorTextObjFromType(apiResp)
+                    callApi(anchorTextUrl,getAnchorTextCallback)
+                }else{
+                    var validateUrl = getURLforValidateTextsFile(apiResp.anchorsFileId)
+                    callApi(validateUrl,validateTextsFileCallback)
+                }    
+                
+            }else{
+                $("#div-main").text("ERROR. GAME OVER")
+            }
+         }
+        
+         function validateTextsFileCallback(apiResp){
+            CONTEXT.validate = apiResp
+            console.log('validateTextsFileCallback',apiResp)
+            $("#div-texts-file-validate-resp").text(JSON.stringify(apiResp,null,3))
+            if(apiResp.status=="OK"){
+                var anchorTextUrl = getURLforAnchorTextObjFromType(CONTEXT.anchorType)
                 callApi(anchorTextUrl,getAnchorTextCallback)
             }else{
                 $("#div-main").text("ERROR. GAME OVER")
             }
          }
+        
+
+        
+        
         
         
         function getAnchorTextCallback(apiResp){
@@ -200,6 +224,21 @@ create-file-resp
             return url
 
         }
+        
+
+        function getURLforValidateTextsFile(fileId){
+            var endpoint = "validate-texts-file"
+
+            var url= "https://script.google.com/macros/s/"
+                              +macrosId
+                              +"/exec/"
+                              +endpoint
+                              +"?origin-file-id="+fileId
+            console.log("ValidateTextsFileUrl= ",url)
+            return url
+
+        }        
+        
         
         function getURLforAnchorTextObjFromType(apiResp){
             var endpoint = "get-anchor-text"
