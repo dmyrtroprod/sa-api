@@ -25,8 +25,8 @@ writer-resp
   <input type="button" id="btSubmit" value="--" hidden ="false">
 </div>
 
-
-<div id="div-create-file-resp">create-file-resp</div>    
+create-file-resp
+<pre id="div-create-file-resp"></pre>    
 
 <div id="div-update-writer-resp">create-update-writer-resp</div>   
 
@@ -142,10 +142,27 @@ writer-resp
         }
         
         
-        function createCallback(){
+        function createCallback(apiResp){
             console.log("createCallback")
-            console.log("CONTEXT",CONTEXT)
+            console.log("createCallback apiResp",apiResp)            
+            if(apiResp.status=="OK"){
+                $("#div-create-file-resp").text(JSON.stringify(apiResp,null,3))
+                //var writerUrl = getURLforWriter()
+                //callApi(writerUrl,getWriterCallback)
+            }else{
+                $("#div-main").text("ERROR. GAME OVER")
+            }
         }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
