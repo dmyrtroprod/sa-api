@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Business Map</title>
+    <title>Sending and ahchor text handling</title>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
       <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
       <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
@@ -41,7 +41,7 @@ writer-resp
     
     <script>
 
-
+        var CONTEXT = {}
 
 
         $(document).ready(function(){
@@ -74,6 +74,7 @@ writer-resp
 
 
         function getTaskObjCallback(apiResp){
+            CONTEXT.taskObj = apiResp
             console.log("getTaskObjCallback",apiResp)
             $("#div-task-obj-resp").text(JSON.stringify(apiResp,null,3))
             if(apiResp.status=="OK"){
@@ -86,6 +87,7 @@ writer-resp
         }
 
          function getAnchorTypeCallback(apiResp){
+             CONTEXT.anchorType = apiResp
             console.log('getAnchorTypeCallback',apiResp)
             $("#div-anchor-type-resp").text(JSON.stringify(apiResp,null,3))
             if(apiResp.status=="OK"){
@@ -98,6 +100,7 @@ writer-resp
         
         
         function getAnchorTextCallback(apiResp){
+            CONTEXT.anchorText = apiResp
             console.log('getAnchorTextCallback',apiResp)
             $("#div-anchor-text-resp").text(JSON.stringify(apiResp,null,3))
             if(apiResp.status=="OK"){
@@ -110,6 +113,7 @@ writer-resp
         }
         
         function getWriterCallback(apiResp){
+            CONTEXT.writerObj = apiResp
             console.log('getWriterCallback',apiResp)
             // in writer remove details
             apiResp[1]=""
@@ -128,6 +132,19 @@ writer-resp
             $("#btSubmit").show()
             $("#btSubmit").val("click if you want to process with this settings")            
             $("#btSubmit").on("click",getCreateFileResp)
+        }
+        
+        
+        function getCreateFileResp(){
+            console.log("getCreateFileResp")
+            var createUrl = getURLforCreateFile()
+            callApi(createUrl,createCallback)
+        }
+        
+        
+        function createCallback(){
+            console.log("createCallback")
+            console.log("CONTEXT",CONTEXT)
         }
         
         
@@ -192,6 +209,31 @@ writer-resp
             return url
 
         }
+
+        function getURLforCreateFile() {
+            var endpoint = "create-file"
+
+            var url= "https://script.google.com/macros/s/"
+                              +macrosId
+                              +"/exec/"
+                              +endpoint
+                            +"?targetFolderId="+encodeURIComponent(CONTEXT.writerObj.targetFolderId)
+                            +"&topic="+encodeURIComponent(CONTEXT.taskObj.topic)
+                            +"&dueDate="+encodeURIComponent(CONTEXT.taskObj.dueDate)
+                            +"&wordsCount="+encodeURIComponent(CONTEXT.taskObj.wordsCount)
+                            +"&domain="+encodeURIComponent(CONTEXT.taskObj.domain)
+                            +"&propLink="+encodeURIComponent(CONTEXT.taskObj.propLink)
+                            +"&anchorType="+encodeURIComponent(CONTEXT.anchorType.typeName)
+                            +"&anchorText="+encodeURIComponent(CONTEXT.anchorText.anchorText)
+                            +"&notes="+encodeURIComponent(CONTEXT.taskObj.notes)
+            
+            console.log("createUrl= ",url)
+            console.log("createUrlLength= ",url.length)
+            return url
+
+        }
+
+
         
         
         function callApi(url,callback){           
