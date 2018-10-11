@@ -29,8 +29,8 @@ writer-resp
 
 create-file-resp
 <pre id="div-create-file-resp"></pre>    
-
-<div id="div-update-writer-resp">create-update-writer-resp</div>   
+update-master-resp
+<pre id="div-update-master-resp"></pre>   
 
 <div id="div-update-anchor-branded-type-resp">update-anchor-type-resp</div>   
 
@@ -69,7 +69,7 @@ create-file-resp
             $("#div-init-resp").text(JSON.stringify(initObj,null,3))
             var taskObjUlr = getTaskObjUrlFromInitObj(initObj)
                 
-            callApi(taskObjUlr,getTaskObjCallback)          
+             callApi(taskObjUlr,getTaskObjCallback)          
         })
         
 
@@ -167,19 +167,29 @@ create-file-resp
         
         
         function createCallback(apiResp){
-            console.log("createCallback")
             console.log("createCallback apiResp",apiResp)            
-            if(apiResp.status=="OK"){
-                $("#div-create-file-resp").text(JSON.stringify(apiResp,null,3))
-                //var writerUrl = getURLforWriter()
-                //callApi(writerUrl,getWriterCallback)
+            CONTEXT.createObj = apiResp
+            $("#div-create-file-resp").text(JSON.stringify(apiResp,null,3))
+            if(apiResp.status=="OK"){                
+                var reportInMasterUrl = getURLforReportInMaster()
+                callApi(reportInMasterUrl,reportInMasterCallback)
             }else{
                 $("#div-main").text("ERROR. GAME OVER")
             }
         }
         
         
-        
+        function reportInMasterCallback(apiResp){
+            console.log("reportInMasterCallback apiResp",apiResp)            
+            CONTEXT.reportInMaster = apiResp
+            $("#div-update-master-resp").text(JSON.stringify(apiResp,null,3))    
+            if(apiResp.status=="OK"){            
+               // var reportInMasterUrl = getURLforReportInMaster()
+               // callApi(reportInMasterUrl,reportInMasterCallback)
+            }else{
+                $("#div-main").text("ERROR. GAME OVER")
+            }            
+        }
         
         
         
@@ -289,7 +299,50 @@ create-file-resp
 
         }
 
-
+        function getURLforReportInMaster(){
+            
+            var endpoint = "report-master-and-texts"
+            var obj = {
+                // planner
+                forPlannerOutRow:encodeURIComponent(CONTEXT.anchorType.outRow),//428,
+                forPlannerOutCol:encodeURIComponent(CONTEXT.anchorType.outCol),//13,
+                forPlannerInitNumber:encodeURIComponent(CONTEXT.anchorType.number),//"",
+                //url target
+                propLink:encodeURIComponent(CONTEXT.taskObj.propLink),//"https://www.sleepadvisor.org/test-test-test/",
+                //W availability
+                assignedTo:encodeURIComponent(CONTEXT.writerObj.assignedTo),//3,
+                assignedOutRow:encodeURIComponent(CONTEXT.writerObj.assignedOutRow),//10,
+                assignedTotal:encodeURIComponent(CONTEXT.writerObj.assignedTotal),//19,
+                assignedTotalInc:encodeURIComponent(CONTEXT.writerObj.assignedTotalInc),//20,
+                //in JNB or Texts file
+                anchorOutRow:encodeURIComponent(CONTEXT.anchorText.outRow),//5,
+                anchorOutCol:encodeURIComponent(CONTEXT.anchorText.outCol),//2,
+                anchorsFileId:encodeURIComponent(CONTEXT.anchorType.anchorsFileId),
+                //in writers file
+                targetFileId:encodeURIComponent(CONTEXT.writerObj.targetFileId),//"1rEjCvoALZqf_decE1j0b0Og2vG5OoSDszIIRLSW1H-U",
+                assignedSheet:encodeURIComponent(CONTEXT.writerObj.assignedSheet),//3,
+                dueDate:encodeURIComponent(CONTEXT.taskObj.dueDate)//"10/15/2018"        
+            }
+            var url= "https://script.google.com/macros/s/"
+                              +macrosId
+                              +"/exec/"
+                              +endpoint
+                            +"?"
+            var keys = Object.keys(obj)
+            keys.forEach(function(key,id){
+                if(id==0){
+                    url=url+key+"="+obj[key]
+                }else{
+                    url=url+"&"+key+"="+obj[key]
+                }
+                
+            })
+            
+            console.log("reportMasterUrl= ",url)
+            console.log("reportMasterUrlLength= ",url.length)
+            return url
+            
+        }
         
         
         function callApi(url,callback){           
